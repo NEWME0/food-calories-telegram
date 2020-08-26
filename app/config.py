@@ -26,3 +26,6 @@ DATABASE = {
     'PASS': '',
     'BASE': 'food-calories-telegram',
 }
+
+
+BASE_URL = 'https://track-calorie.curs-valutar.xyz'

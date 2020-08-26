@@ -1,3 +1,4 @@
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -11,7 +12,11 @@ class ActivityCategoryDetail(BaseModel):
 
 class ActivityCategoryCreate(BaseModel):
     title: str
-    description: str = None
+    description: Optional[str] = ''
+
+
+class ActivityCategoryList(BaseModel):
+    __root__: List[ActivityCategoryDetail]
 
 
 class ActivityDetail(BaseModel):
@@ -26,6 +31,10 @@ class ActivityDetail(BaseModel):
 
 class ActivityCreate(BaseModel):
     title: str
-    description: str = None
-    category: int
-    energy: int
+    description: Optional[str] = ''
+    category: Optional[int] = None
+    energy: Optional[int] = 0
+
+
+class ActivityList(BaseModel):
+    __root__: List[ActivityDetail]

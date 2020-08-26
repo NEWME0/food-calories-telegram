@@ -4,7 +4,9 @@ import itertools
 from telegram.ext import Updater
 
 import app.config
+
 from app.handlers import debug
+from app.handlers import start
 
 
 logging.basicConfig(
@@ -21,6 +23,7 @@ updater = Updater(
 
 # Set handlers here...
 for handler in itertools.chain(
+    start.handlers,
     debug.handlers,
 ):
     updater.dispatcher.add_handler(handler)
