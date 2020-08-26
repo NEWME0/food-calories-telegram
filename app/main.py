@@ -5,31 +5,34 @@ from telegram.ext import Updater
 
 import app.config
 
-from app.handlers import debug
 from app.handlers import start
+from app.handlers import help
+from app.handlers import debug
 
-
+# Init logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # noqa
     level=logging.DEBUG
 )
 
-
+# Init bot
 updater = Updater(
     token=app.config.BOT_TOKEN,
     use_context=True
 )
 
 
-# Set handlers here...
+# Here we register handlers
 for handler in itertools.chain(
     start.handlers,
+    help.handlers,
     debug.handlers,
 ):
     updater.dispatcher.add_handler(handler)
 
 
-# Use polling if BOT_DEBUG is True
+# Use polling if DEBUG is True
+# Or webhook if DEBUG is False
 if app.config.DEBUG:
     updater.start_polling()
 else:

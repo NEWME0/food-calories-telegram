@@ -36,18 +36,18 @@ class BaseRequestPipeline(ABC):
     middlewares = []
 
     def prepare_request(self):
-        """ Init request """
+        """ Init request (executed before pipeline start) """
         request = dict()
         return request
 
     def execute_request(self, request):
-        """ Sending request """
+        """ Sending request (executed at middle of pipeline) """
         print('execute_request')
         response = request
         return response
 
     def prepare_pipeline(self):
-        """ Closure middlewares """
+        """ Closure middlewares (create pipeline) """
         get_response = self.execute_request
 
         for middleware_item in self.middlewares[::-1]:
@@ -57,6 +57,7 @@ class BaseRequestPipeline(ABC):
         return get_response
 
     def send(self):
+        """ Execute pipeline """
         pipeline = self.prepare_pipeline()
         request = self.prepare_request()
         result = pipeline(request)

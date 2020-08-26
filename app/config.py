@@ -24,7 +24,7 @@ DATABASE = {
     'PORT': '',
     'USER': '',
     'PASS': '',
-    'BASE': 'food-calories-telegram',
+    'NAME': 'food-calories-telegram',
 }
 
 

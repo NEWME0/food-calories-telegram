@@ -4,12 +4,12 @@ from app.database.models import Base
 from app.config import DATABASE
 
 
-# engine_string = '{ENGINE}://{USER}:{PASS}@{HOST}:{PORT}/{BASE}'.format(
+# engine_string = '{ENGINE}://{USER}:{PASS}@{HOST}:{PORT}/{NAME}'.format(
 #     **DATABASE
 # )
 
 
-engine_string = 'sqlite:///food-calories-telegram.sqlite'
+engine_string = 'sqlite:///db.sqlite'
 
 engine = create_engine(engine_string)
 

@@ -3,8 +3,8 @@ from requests import Session
 from app.database.session import Session as DatabaseSession
 from app.database.models import User as UserModel
 from app.api.requests import User as UserRequest
-from app.serializers import UserApiKeyDetail, UserApiKeyCreate
-from app.service import User
+from app.serializers.user import UserApiKeyDetail, UserApiKeyCreate
+from app.service.user import User
 
 
 class Admin:
@@ -28,7 +28,8 @@ class Admin:
             )
 
             # Send user registration request
-            response = self.session.send(UserRequest.create(json=user_data.dict()))
+            request = self.session.prepare_request(UserRequest.create(json=user_data.dict()))
+            response = self.session.send(request)
 
             if response.status_code != 201:
                 # TODO: verify somehow request exceptions and status code

@@ -1,13 +1,13 @@
 from telegram import *
 from telegram.ext import *
 
-from app.wrappers.user import User
+from app.service import admin
 
 
 def callback_start(update: Update, context: CallbackContext):
     user_telegram = update.message.from_user.id
-    user = User(user_telegram)
 
+    user = admin.user_get_or_create(user_telegram)
     update.message.reply_text(
         "hello"
     )
