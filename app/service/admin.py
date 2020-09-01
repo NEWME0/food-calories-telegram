@@ -1,56 +1,75 @@
-from requests import Session
+from typing import Dict
 
-from app.database.session import Session as DatabaseSession
-from app.database.models import User as UserModel
-from app.api.requests import User as UserRequest
+from apiclient.client import APIClient
+from apiclient.authentication_methods import NoAuthentication
+from apiclient.exceptions import ClientError
+
+from app.database.session import Session
+from app.database.models import User
+from app.service.endpoints import EndpointUser
+from app.service.user import APIUser
+
 from app.serializers.user import UserApiKeyDetail, UserApiKeyCreate
-from app.service.user import User
 
 
-class Admin:
-    """
-        TODO: make Admin singleton?
-        TODO: rename Admin to Service
-    """
+class APIAdmin(APIClient):
     def __init__(self):
-        self.session = Session()
-        self.session.headers['Content-Type'] = 'application/json'
+        super().__init__(
+            authentication_method=NoAuthentication(),
+        )
 
-    def user_get_or_create(self, telegram):
-        database_session = DatabaseSession()
-        user_object = database_session.query(UserModel).filter_by(telegram=telegram).first()
+    def user_check(self, username: str):
+        return self.post(endpoint=EndpointUser.user_check, data={'username': username})
 
-        if user_object is None:
-            username = f'telegram_{telegram}'
+    def user_create(self, username: str):
+        return self.post(endpoint=EndpointUser.user_create, data={'username': username})
 
-            # Prepare user data for registration
-            user_data = UserApiKeyCreate(
-                username=username,
-            )
+    def user_restore(self, username: str):
+        return self.post(endpoint=EndpointUser.user_restore, data={'username': username})
 
-            # Send user registration request
-            request = self.session.prepare_request(UserRequest.create(json=user_data.dict()))
-            response = self.session.send(request)
+    def user_client_get_or_create(self, telegram):
+        with Session() as database_session:
+            user_object = database_session.query(User).filter_by(telegram=telegram).first()
 
-            if response.status_code != 201:
-                # TODO: verify somehow request exceptions and status code
+            # If user exist
+            if user_object is not None:
                 pass
 
-            # TODO: verify somehow validation exceptions
-            validated_data = UserApiKeyDetail.parse_raw(response.text)
+            # If user doesn't exist...
+            if user_object is None:
+                username = f'telegram_{telegram}'
 
-            # Save new user to database
-            user_object = UserModel(
-                telegram=telegram,
-                username=username,
-                api_key=validated_data.api_key,
-            )
-            database_session.add(user_object)
-            database_session.commit()
+                # Send user registration request
+                try:
+                    response = self.user_create(username)
+                except ClientError:
+                    response = self.user_restore(username)
 
-        user = User(user_object.api_key)
-        database_session.close()
+                print(response)
+                print(response.text)
 
-        # TODO: Check that user api_key is valid by sending an test request
+                # TODO: verify somehow validation exceptions
+                validated_data = UserApiKeyDetail.parse_raw(response.text)
 
-        return user
+                # Save new user to database
+                user_object = User(
+                    telegram=telegram,
+                    username=username,
+                    api_key=validated_data.api_key,
+                )
+                database_session.add(user_object)
+                database_session.commit()
+
+            api_user = APIUser(api_key=user_object.api_key)
+            database_session.close()
+
+            # TODO: Check that user api_key is valid by sending an test request
+
+            return api_user
+
+
+admin = APIAdmin()
+
+user = admin.user_client_get_or_create(telegram='123456789')
+if user is None:
+    print('Exception')
