@@ -19,6 +19,11 @@ class Food(RequestSet):
     path = '/api/food/'
 
 
+class Activity(RequestSet):
+    base = BASE_URL
+    PATH = '/api/activity/'
+
+
 class FoodJournal(RequestSet):
     base = BASE_URL
     path = '/track/food/'

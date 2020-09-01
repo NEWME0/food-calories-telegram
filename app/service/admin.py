@@ -9,7 +9,8 @@ from app.service.user import User
 
 class Admin:
     """
-        TODO: make admin singleton?
+        TODO: make Admin singleton?
+        TODO: rename Admin to Service
     """
     def __init__(self):
         self.session = Session()
